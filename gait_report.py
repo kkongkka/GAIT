@@ -41,17 +41,17 @@ kine_filtered.reset_index(inplace=True, drop=True)
 force_filtered.reset_index(inplace=True, drop=True)
 
 k_sr = 60
-k_Heel_contact_1  = kine_filtered['Heel_contact_1'][0]
-k_Toe_off_1       = kine_filtered['Toe_off_1'][0]      - k_Heel_contact_1
-k_Heel_contact_2  = kine_filtered['Heel_contact_2'][0] - k_Heel_contact_1
-k_Toe_off_2       = kine_filtered['Toe_off_2'][0]      - k_Heel_contact_1
+k_Heel_contact_1  = round(kine_filtered['Heel_contact_1'][0])
+k_Toe_off_1       = round(kine_filtered['Toe_off_1'][0]      - k_Heel_contact_1)
+k_Heel_contact_2  = round(kine_filtered['Heel_contact_2'][0] - k_Heel_contact_1)
+k_Toe_off_2       = round(kine_filtered['Toe_off_2'][0]      - k_Heel_contact_1)
 #stride_length = round(kine_filtered['stride_length'][0])
 
 f_sr = 2160
-f_Heel_contact_1  = force_filtered['Heel_contact_1'][0]
-f_Toe_off_1       = force_filtered['Toe_off_1'][0]      - f_Heel_contact_1
-f_Heel_contact_2  = force_filtered['Heel_contact_2'][0] - f_Heel_contact_1
-f_Toe_off_2       = force_filtered['Toe_off_2'][0]      - f_Heel_contact_1
+f_Heel_contact_1  = round(force_filtered['Heel_contact_1'][0])
+f_Toe_off_1       = round(force_filtered['Toe_off_1'][0]      - f_Heel_contact_1)
+f_Heel_contact_2  = round(force_filtered['Heel_contact_2'][0] - f_Heel_contact_1)
+f_Toe_off_2       = round(force_filtered['Toe_off_2'][0]      - f_Heel_contact_1)
 
 k_foot_1 = kine_filtered.iloc[k_Heel_contact_1:int(k_Toe_off_1 + k_Heel_contact_1 + (k_sr * 0.2)),:].reset_index(drop=True)
 f_foot_1 = force_filtered.iloc[f_Heel_contact_1:int(f_Toe_off_1 + f_Heel_contact_1 + (f_sr * 0.2)),:].reset_index(drop=True)
