@@ -3,19 +3,19 @@ def data_concat():
     from glob import glob
     import pandas as pd
 
-    KINEMATIC_PATH = 'csv/20240403/kine/*csv'
-    FORCE_PATH = 'csv/20240403/force/*csv'
+    FP1_PATH = 'csv/2/FP1/*csv'
+    FP2_PATH = 'csv/2/FP2/*csv'
 
-    KINEMATIC_DIR = [i.replace('\\','/') for i in glob(KINEMATIC_PATH)]
-    FORCE_DIR = [i.replace('\\','/') for i in glob(FORCE_PATH)]
+    FP1_DIR = [i.replace('\\','/') for i in glob(FP1_PATH)]
+    FP2_DIR = [i.replace('\\','/') for i in glob(FP2_PATH)]
 
-    for kine_dir, force_dir in zip(KINEMATIC_DIR, FORCE_DIR):
+    for FP1_dir, FP2_dir in zip(FP1_DIR, FP2_DIR):
         
-        kine = pd.read_csv(kine_dir)
-        force = pd.read_csv(force_dir)
+        FP1 = pd.read_csv(FP1_dir)
+        FP2 = pd.read_csv(FP2_dir)
 
-        _, kday, _, kfname = kine_dir.split('/')
-        _, fday, _, ffname = force_dir.split('/')
+        _, kday, _, kfname = FP1_dir.split('/')
+        _, fday, _, ffname = FP2_dir.split('/')
 
         kfname = kfname.replace('.csv','')
         kplayer_name, ktrial, _, weight, height, kfoot = kfname.split('_')
@@ -23,18 +23,18 @@ def data_concat():
         ffname = ffname.replace('.csv','')
         fplayer_name, ftrial, _, weight, height, ffoot = ffname.split('_')
 
-        kine['player'] = kplayer_name
-        kine['day']    = kday
-        kine['trial']  = ktrial
-        kine['weight'] = weight
-        kine['height'] = height
-        kine['foot']   = kfoot
+        FP1['player'] = kplayer_name
+        FP1['day']    = kday
+        FP1['trial']  = ktrial
+        FP1['weight'] = weight
+        FP1['height'] = height
+        FP1['foot']   = kfoot
 
-        force['player'] = fplayer_name
-        force['day']    = fday
-        force['trial']  = ftrial
-        force['weight'] = weight
-        force['height'] = height
-        force['foot']   = ffoot
+        FP2['player'] = fplayer_name
+        FP2['day']    = fday
+        FP2['trial']  = ftrial
+        FP2['weight'] = weight
+        FP2['height'] = height
+        FP2['foot']   = ffoot
         
-    return kine, force
+    return FP1, FP2
