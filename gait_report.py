@@ -58,26 +58,54 @@ fp_1time = fp1_time.round(3)
 fp2_len = len(fp2_filtered)
 fp2_time = np.arange(0,fp2_len/k_sr, 1/k_sr)
 fp_2time = fp2_time.round(3)
+# ===================================================================================
+# ============================= Using Data ==========================================
 
-ang_cols = {
+FP1_ang_cols = {
+    'PELVIS_ANGLE_X' : 'Pelvic_Anterior_Tilt',
+    #'             ' : 'Pelvic_Up_(Obliquity)',
+    #'             ' : 'Pelvic_Internal_Rotation',
+    
+    'FP1_HIP_ANGLE_X' : 'Hip_Flexion',
+    'FP1_HIP_ANGLE_Y' : 'Hip_Adduction',
+    'FP1_HIP_ANGLE_Z' : 'Hip_Internal_Rotation',
+    
+    'FP1_KNEE_ANGLE_X' : 'Knee_Flexion',
+    #'               ' : 'Knee_Varus',
+    #'               ' : 'Knee_Internal_Rotation',
+    
+    'FP1_ANKLE_ANGLE_X' : 'Ankle_Dorsiflexion',
+    'FP1_ANKLE_ANGLE_Y' : 'add',
+    'FP1_ANKLE_ANGLE_Z' : 'Ankle_Inversion',
+    
+    #'RT_ANKLE_ANGLE_Y' : 'Ankle_Rotation',
+    }
+
+FP2_ang_cols = {
     'PELVIS_ANGLE_X' : 'Pelvic_Anterior_Tilt',
     #'              ' : 'Pelvic_Up_(Obliquity)',
     #'              ' : 'Pelvic_Internal_Rotation',
     
-    'RT_HIP_ANGLE_X' : 'Hip_Flexion',
-    'RT_HIP_ANGLE_Y' : 'Hip_Adduction',
-    'RT_HIP_ANGLE_Z' : 'Hip_Internal_Rotation',
+    'FP2_HIP_ANGLE_X' : 'Hip_Flexion',
+    'FP2_HIP_ANGLE_Y' : 'Hip_Adduction',
+    'FP2_HIP_ANGLE_Z' : 'Hip_Internal_Rotation',
     
-    'RT_KNEE_ANGLE_X' : 'Knee_Flexion',
+    'FP2_KNEE_ANGLE_X' : 'Knee_Flexion',
     #'               ' : 'Knee_Varus',
     #'               ' : 'Knee_Internal_Rotation',
     
-    'RT_ANKLE_ANGLE_X' : 'Ankle_Dorsiflexion',
-    'RT_ANKLE_ANGLE_Y' : 'add',
-    'RT_ANKLE_ANGLE_Z' : 'Ankle_Inversion',
+    'FP2_ANKLE_ANGLE_X' : 'Ankle_Dorsiflexion',
+    'FP2_ANKLE_ANGLE_Y' : 'add',
+    'FP2_ANKLE_ANGLE_Z' : 'Ankle_Inversion',
     
     #'RT_ANKLE_ANGLE_Y' : 'Ankle_Rotation',
     }
+
+ap1_cols = {'FP1_FORCE_Y' : ['Stride Leg' , 'blue'],}
+vt1_cols = {'FP1_FORCE_Z' : ['Stride Leg' , 'red'],}
+
+ap2_cols = {'FP2_FORCE_Y' : ['Stride Leg', 'blue'],}
+vt2_cols = {'FP2_FORCE_Z' : ['Stride Leg' , 'red'],}
 
 def one_angle_plotly(data, cols, time, k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2):
     ang = {
@@ -101,7 +129,7 @@ def one_angle_plotly(data, cols, time, k_Heel_contact_1, k_Toe_off_1, k_Heel_con
             y_label = 'Angle [deg]'
         
         # Create the trace for the main data line
-        trace = go.Scatter(x=time, y=df, mode='lines', name=cols[col], line=dict(color='firebrick'))
+        trace = go.Scatter(x=time, y=df, mode='lines', name=cols[col], line=dict(color='orange'))
         traces = [trace]
         
         ang['k_Heel_contact_1'][col] = round(df[k_Heel_contact_1])
@@ -161,8 +189,116 @@ def one_angle_plotly(data, cols, time, k_Heel_contact_1, k_Toe_off_1, k_Heel_con
         
     return ang, figures
 
-FP1_values, FP1_fig = one_angle_plotly(fp1_filtered, ang_cols, fp_1time, k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2)
-FP2_values, FP2_fig = one_angle_plotly(fp2_filtered, ang_cols, fp_2time, k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2)
+def grf_plotly(data, cols, time, k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2, axis):
+    title = 'GROUND REACTION FORCE (AP-AXIS)' if axis == 'ap' else 'GROUND REACTION FORCE (Vertical)'
+    
+    y_values = {
+        'max'       : {},
+        'max_frame' : {},
+        'min'       : {},
+        'min_frame' : {},
+        'k_Heel_contact_1'   : {},
+        'k_Toe_off_1'        : {},
+        'k_Heel_contact_2'   : {},
+        'k_Toe_off_2'        : {},
+    }
+    
+    # Create traces
+    traces = []
+    for col, info in cols.items():
+        df = data[col]
+        trace = go.Scatter(x=time, y=df, mode='lines', name=info[0], line=dict(color=info[-1]))
+        traces.append(trace)
+        
+        # Perform and store the calculations for max, min and specific times
+        y_values['k_Heel_contact_1'][col] = round(df[k_Heel_contact_1])
+        y_values['k_Toe_off_1'][col]      = round(df[k_Toe_off_1])
+        y_values['k_Heel_contact_2'][col] = round(df[k_Heel_contact_2])
+        y_values['k_Toe_off_2'][col]      = round(df[k_Toe_off_2])
+        
+        y_values['max'][col]       = round(df.max(), 2)
+        y_values['max_frame'][col] = np.where(df == df.max())[0][0]
+        y_values['min'][col]       = round(df.min(), 2)
+        y_values['min_frame'][col] = np.where(df == df.min())[0][0]
+        
+    # Adding reference lines and annotations
+    reference_lines = []
+    annotations = []
+
+    # Add vertical lines and annotations for key events
+    for key_time, description in zip([k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2],
+                                    ['HC1', 'TO1', 'HC2', 'TO2']):
+        reference_lines.append(
+        go.Scatter(x=[time[key_time], time[key_time]], y=[df.min(), df.max()],
+                    mode='lines', line=dict(color='black', width=2, dash='dash'),
+                    showlegend=False)
+    )
+        annotations.append(
+        dict(x=time[key_time], y=0.95, xref='x', yref='paper', showarrow=False,
+                text=description,textangle=-90, bgcolor='rgba(0,0,0,0)', bordercolor='rgba(0,0,0,0)', borderwidth=0,
+                )
+    )
+
+    # Update the layout with additional elements
+    layout = go.Layout(
+        title=title,
+        xaxis=dict(title='Time [s]',
+                    showgrid=False),
+        yaxis=dict(
+                    title='Force [% BW]',
+                    showgrid=True,         # This will show the horizontal gridlines
+                    gridcolor='lightgrey',
+                    gridwidth=1,
+                    zeroline=False
+                ),
+        showlegend=True,
+        legend=dict(
+                    x=1, # Adjust this value to move the legend left or right
+                    y=1, # Adjust this value to move the legend up or down
+                    xanchor='right', # Anchor the legend's right side at the x position
+                    yanchor='top', # Anchor the legend's top at the y position
+                    bgcolor='rgb(43,48,61)' # Set a background color with a bit of transparency
+                    ),
+        margin=dict(l=40, r=40, t=40, b=40),
+        height=600,
+        hovermode='closest',
+        plot_bgcolor='rgb(43,48,61)',
+        annotations=annotations
+    )
+
+    # Create the figure
+    fig = go.Figure(data=traces + reference_lines, layout=layout)
+
+    return fig, y_values
+
+# ============================ 그래프 및 시점 수치 =======================================
+FP1_values, FP1_fig = one_angle_plotly(fp1_filtered, FP1_ang_cols, fp_1time, k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2)
+FP2_values, FP2_fig = one_angle_plotly(fp2_filtered, FP2_ang_cols, fp_2time, k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2)
+
+force1_ap_fig, force1_ap_values = grf_plotly(fp1_filtered, ap1_cols, fp_1time, k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2, axis='ap')
+force1_vt_fig, force1_vt_values = grf_plotly(fp1_filtered, vt1_cols, fp_1time, k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2, axis='vt')
+
+force2_ap_fig, force2_ap_values = grf_plotly(fp2_filtered, ap2_cols, fp_2time, k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2, axis='ap')
+force2_vt_fig, force2_vt_values = grf_plotly(fp2_filtered, vt2_cols, fp_2time, k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2, axis='vt')
+# ===================================================================================
+
+force1_ap_fig.update_layout(
+    width=800,  # Set the width to your preference
+    height=400  # Set the height to your preference
+)
+force1_vt_fig.update_layout(
+    width=800,  # Set the width to your preference
+    height=400  # Set the height to your preference
+)
+
+force2_ap_fig.update_layout(
+    width=800,  # Set the width to your preference
+    height=400  # Set the height to your preference
+)
+force2_vt_fig.update_layout(
+    width=800,  # Set the width to your preference
+    height=400  # Set the height to your preference
+)
 
 for col in FP1_fig:
     fig = FP1_fig[col]
@@ -180,24 +316,39 @@ for col in FP2_fig:
         autosize=False  # Disable autosizing to enforce provided dimensions
     )
     
+# ===================================================================================
+# ============================= DashBoard ===========================================
+st.title('KUM GAIT REPORT')
+
 st.header('분석 구간')
 st.image('image/analysis.png', use_column_width=True)
 
 st.subheader('KINEMATICS PARAMETERS')
 
-st.write("GROUND REACTION FORCE AP")
-
-for col in ang_cols:
-    st.write(ang_cols[col])
-
+# kine
+for col_1, col_2 in zip(FP1_ang_cols, FP2_ang_cols):
     # Create two columns with equal width
     col1, col2 = st.columns([1, 1])
-
     with col1:
         # Render the FP1_fig graph in the left column
-        st.plotly_chart(FP1_fig[col], use_container_width=True)
-
+        st.plotly_chart(FP1_fig[col_1], use_container_width=True)
     with col2:
         # Render the FP2_fig graph in the right column
-        st.plotly_chart(FP2_fig[col], use_container_width=True)
+        st.plotly_chart(FP2_fig[col_2], use_container_width=True)
+        
+# force
+st.subheader('KINETICS PARAMETERS')
+
+col1, col2 = st.columns([1, 1])  # Define columns for the first set of charts
+with col1:
+    st.plotly_chart(force1_ap_fig, use_container_width=True)
+with col2:
+    st.plotly_chart(force2_ap_fig, use_container_width=True)
+
+col1, col2 = st.columns([1, 1])  # Re-define columns for the second set of charts
+with col1:
+    st.plotly_chart(force1_vt_fig, use_container_width=True)
+with col2:
+    st.plotly_chart(force2_vt_fig, use_container_width=True)
+
 
