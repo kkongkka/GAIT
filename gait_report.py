@@ -75,10 +75,10 @@ FP1_ang_cols = {
     #'               ' : 'Knee_Internal_Rotation',
     
     'FP1_ANKLE_ANGLE_X' : 'Ankle_Dorsiflexion',
-    'FP1_ANKLE_ANGLE_Y' : 'add',
     'FP1_ANKLE_ANGLE_Z' : 'Ankle_Inversion',
     
     #'RT_ANKLE_ANGLE_Y' : 'Ankle_Rotation',
+    #'FP1_ANKLE_ANGLE_Y' : 'add',
     }
 
 FP2_ang_cols = {
@@ -107,6 +107,26 @@ vt1_cols = {'FP1_FORCE_Z' : ['Stride Leg' , 'red'],}
 ap2_cols = {'FP2_FORCE_Y' : ['Stride Leg', 'blue'],}
 vt2_cols = {'FP2_FORCE_Z' : ['Stride Leg' , 'red'],}
 
+FP1_mmt_cols = {
+    'FP1_KNEE_MMT_X' : 'Knee_Medial_mmt',
+    #'FP1_KNEE_MMT_Y' : 'Pelvic_Anterior_Tilt',
+    #'FP1_KNEE_MMT_Z' : 'Pelvic_Anterior_Tilt',
+    
+    'FP1_ANKLE_MMT_X' : 'Ankle_Medial_mmt',
+    #'FP1_ANKLE_MMT_Y' : 'Pelvic_Anterior_Tilt',
+    #'FP1_ANKLE_MMT_Z' : 'Pelvic_Anterior_Tilt',
+    }
+
+FP2_mmt_cols = {
+    'FP2_KNEE_MMT_X' : 'Knee_Medial_mmt',
+    #'FP2_KNEE_MMT_Y' : 'Pelvic_Anterior_Tilt',
+    #'FP2_KNEE_MMT_Z' : 'Pelvic_Anterior_Tilt',
+    
+    'FP2_ANKLE_MMT_X' : 'Ankle_Medial_mmt',
+    #'FP2_ANKLE_MMT_Y' : 'Pelvic_Anterior_Tilt',
+    #'FP2_ANKLE_MMT_Z' : 'Pelvic_Anterior_Tilt',
+    }
+
 def one_angle_plotly(data, cols, time, k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2):
     ang = {
         'max'       : {},
@@ -125,6 +145,8 @@ def one_angle_plotly(data, cols, time, k_Heel_contact_1, k_Toe_off_1, k_Heel_con
         df = data[col]
         if 'VELOCITY' in col:
             y_label = 'Angular Velocity [deg/s]'
+        elif 'MMT' in col:
+            y_label = 'Moment [Nm/kg]'
         else:
             y_label = 'Angle [deg]'
         
@@ -280,6 +302,10 @@ force1_vt_fig, force1_vt_values = grf_plotly(fp1_filtered, vt1_cols, fp_1time, k
 
 force2_ap_fig, force2_ap_values = grf_plotly(fp2_filtered, ap2_cols, fp_2time, k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2, axis='ap')
 force2_vt_fig, force2_vt_values = grf_plotly(fp2_filtered, vt2_cols, fp_2time, k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2, axis='vt')
+
+FP1_mmt, mmt1_fig = one_angle_plotly(fp1_filtered, FP1_mmt_cols, fp_1time, k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2)
+FP2_mmt, mmt2_fig = one_angle_plotly(fp2_filtered, FP2_mmt_cols, fp_2time, k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2)
+
 # ===================================================================================
 
 force1_ap_fig.update_layout(
@@ -316,6 +342,21 @@ for col in FP2_fig:
         autosize=False  # Disable autosizing to enforce provided dimensions
     )
     
+for col in mmt1_fig:
+    fig = mmt1_fig[col]
+    fig.update_layout(
+        width=500,  # Desired width
+        height=400,  # Desired height
+        autosize=False  # Disable autosizing to enforce provided dimensions
+    )
+    
+for col in mmt2_fig:
+    fig = mmt2_fig[col]
+    fig.update_layout(
+        width=500,  # Desired width
+        height=400,  # Desired height
+        autosize=False  # Disable autosizing to enforce provided dimensions
+    )
 # ===================================================================================
 # ============================= DashBoard ===========================================
 st.title('KUM GAIT REPORT')
@@ -323,32 +364,57 @@ st.title('KUM GAIT REPORT')
 st.header('분석 구간')
 st.image('image/analysis.png', use_column_width=True)
 
+stride_length = round(fp1_filtered['stride_length'][0],2)
+step_width = round(fp1_filtered['step_width'][0],2)
+
+col1, col2 = st.columns(2)
+col1.metric("Stride Length", f"{stride_length} cm", "height")
+col2.metric("Step Width", f"{step_width} cm", "height")
+
+
+
+
+
 st.subheader('KINEMATICS PARAMETERS')
 
-# kine
-for col_1, col_2 in zip(FP1_ang_cols, FP2_ang_cols):
-    # Create two columns with equal width
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        # Render the FP1_fig graph in the left column
-        st.plotly_chart(FP1_fig[col_1], use_container_width=True)
-    with col2:
-        # Render the FP2_fig graph in the right column
-        st.plotly_chart(FP2_fig[col_2], use_container_width=True)
+tabs = st.tabs(FP1_ang_cols.values())
+
+for tab, col_1, col_2 in zip(tabs, FP1_ang_cols, FP2_ang_cols):
+    with tab:
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            st.plotly_chart(FP1_fig[col_1], use_container_width=True)
+        with col2:
+            st.plotly_chart(FP2_fig[col_2], use_container_width=True)
         
 # force
 st.subheader('KINETICS PARAMETERS')
 
-col1, col2 = st.columns([1, 1])  # Define columns for the first set of charts
-with col1:
-    st.plotly_chart(force1_ap_fig, use_container_width=True)
-with col2:
-    st.plotly_chart(force2_ap_fig, use_container_width=True)
+# 탭 생성
+tab1, tab2 = st.tabs(["GRF AP axis", "GRF Verticla"])
 
-col1, col2 = st.columns([1, 1])  # Re-define columns for the second set of charts
-with col1:
-    st.plotly_chart(force1_vt_fig, use_container_width=True)
-with col2:
-    st.plotly_chart(force2_vt_fig, use_container_width=True)
+with tab1:
+    col1, col2 = st.columns([1, 1])  # 첫 번째 쌍의 차트를 위한 열 정의
+    with col1:
+        st.plotly_chart(force1_ap_fig, use_container_width=True)
+    with col2:
+        st.plotly_chart(force2_ap_fig, use_container_width=True)
 
+with tab2:
+    col1, col2 = st.columns([1, 1])  # 두 번째 쌍의 차트를 위한 열 정의
+    with col1:
+        st.plotly_chart(force1_vt_fig, use_container_width=True)
+    with col2:
+        st.plotly_chart(force2_vt_fig, use_container_width=True)
+        
+# MMT
+st.subheader('MOMENTS')
+tabs = st.tabs(FP1_mmt_cols.values())
 
+for tab, col_1, col_2 in zip(tabs, FP1_mmt_cols, FP2_mmt_cols):
+    with tab:
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            st.plotly_chart(mmt1_fig[col_1], use_container_width=True)
+        with col2:
+            st.plotly_chart(mmt2_fig[col_2], use_container_width=True)
