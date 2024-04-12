@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
+import matplotlib.pyplot as plt
 import streamlit as st
 import numpy as np
 
@@ -63,43 +64,40 @@ fp_2time = fp2_time.round(3)
 
 FP1_ang_cols = {
     'PELVIS_ANGLE_X' : 'Pelvic_Anterior_Tilt',
-    #'             ' : 'Pelvic_Up_(Obliquity)',
-    #'             ' : 'Pelvic_Internal_Rotation',
+    'PELVIS_ANGLE_Y' : 'Pelvic_Rotation',
+    'PELVIS_ANGLE_Z' : 'Pelvic_Up_(Obliquity)',
     
-    'FP1_HIP_ANGLE_X' : 'Hip_Flexion',
-    'FP1_HIP_ANGLE_Y' : 'Hip_Adduction',
-    'FP1_HIP_ANGLE_Z' : 'Hip_Internal_Rotation',
+    'FP1_HIP_ANGLE_X' : 'Hip_Flexion', # Extension
+    'FP1_HIP_ANGLE_Y' : 'Hip_Adduction', # Abduction
+    'FP1_HIP_ANGLE_Z' : 'Hip_Internal_Rotation', # External Rotation
     
     'FP1_KNEE_ANGLE_X' : 'Knee_Flexion',
     #'               ' : 'Knee_Varus',
     #'               ' : 'Knee_Internal_Rotation',
     
-    'FP1_ANKLE_ANGLE_X' : 'Ankle_Dorsiflexion',
-    'FP1_ANKLE_ANGLE_Z' : 'Ankle_Inversion',
-    
-    #'RT_ANKLE_ANGLE_Y' : 'Ankle_Rotation',
-    #'FP1_ANKLE_ANGLE_Y' : 'add',
+    'FP1_ANKLE_ANGLE_X' : 'Ankle_Dorsiflexion', # Plantarflexion
+    'FP1_ANKLE_ANGLE_Y' : 'Ankle_Inversion', # Eversion
+    'FP1_ANKLE_ANGLE_Z' : 'Ankle_Internal_Rotation', # External Rotation
     }
 
 FP2_ang_cols = {
     'PELVIS_ANGLE_X' : 'Pelvic_Anterior_Tilt',
-    #'              ' : 'Pelvic_Up_(Obliquity)',
-    #'              ' : 'Pelvic_Internal_Rotation',
+    'PELVIS_ANGLE_Y' : 'Pelvic_Rotation',
+    'PELVIS_ANGLE_Z' : 'Pelvic_Up_(Obliquity)',
     
-    'FP2_HIP_ANGLE_X' : 'Hip_Flexion',
-    'FP2_HIP_ANGLE_Y' : 'Hip_Adduction',
-    'FP2_HIP_ANGLE_Z' : 'Hip_Internal_Rotation',
+    'FP2_HIP_ANGLE_X' : 'Hip_Flexion', # Extension
+    'FP2_HIP_ANGLE_Y' : 'Hip_Adduction', # Abduction
+    'FP2_HIP_ANGLE_Z' : 'Hip_Internal_Rotation', # External Rotation
     
     'FP2_KNEE_ANGLE_X' : 'Knee_Flexion',
     #'               ' : 'Knee_Varus',
     #'               ' : 'Knee_Internal_Rotation',
     
-    'FP2_ANKLE_ANGLE_X' : 'Ankle_Dorsiflexion',
-    'FP2_ANKLE_ANGLE_Y' : 'add',
-    'FP2_ANKLE_ANGLE_Z' : 'Ankle_Inversion',
-    
-    #'RT_ANKLE_ANGLE_Y' : 'Ankle_Rotation',
+    'FP2_ANKLE_ANGLE_X' : 'Ankle_Dorsiflexion', # Plantarflexion
+    'FP2_ANKLE_ANGLE_Y' : 'Ankle_Inversion', # Eversion
+    'FP2_ANKLE_ANGLE_Z' : 'Ankle_Internal_Rotation', # External Rotation
     }
+
 
 ap1_cols = {'FP1_FORCE_Y' : ['Stride Leg' , 'blue'],}
 vt1_cols = {'FP1_FORCE_Z' : ['Stride Leg' , 'red'],}
@@ -108,23 +106,23 @@ ap2_cols = {'FP2_FORCE_Y' : ['Stride Leg', 'blue'],}
 vt2_cols = {'FP2_FORCE_Z' : ['Stride Leg' , 'red'],}
 
 FP1_mmt_cols = {
-    'FP1_KNEE_MMT_X' : 'Knee_Medial_mmt',
-    #'FP1_KNEE_MMT_Y' : 'Pelvic_Anterior_Tilt',
-    #'FP1_KNEE_MMT_Z' : 'Pelvic_Anterior_Tilt',
+    'FP1_KNEE_MMT_X' : 'Knee_Extensor_Moment',
+    'FP1_KNEE_MMT_Y' : 'Knee_Valgus_Moment',
+    'FP1_KNEE_MMT_Z' : 'Knee_Rotaion_Moment',
     
-    'FP1_ANKLE_MMT_X' : 'Ankle_Medial_mmt',
-    #'FP1_ANKLE_MMT_Y' : 'Pelvic_Anterior_Tilt',
-    #'FP1_ANKLE_MMT_Z' : 'Pelvic_Anterior_Tilt',
+    'FP1_ANKLE_MMT_X' : 'Ankle_Plantarflexor_Moment',
+    'FP1_ANKLE_MMT_Y' : 'Ankle_Eversion_Moment',
+    'FP1_ANKLE_MMT_Z' : 'Ankle_Rotaion_Moment',
     }
 
 FP2_mmt_cols = {
-    'FP2_KNEE_MMT_X' : 'Knee_Medial_mmt',
-    #'FP2_KNEE_MMT_Y' : 'Pelvic_Anterior_Tilt',
-    #'FP2_KNEE_MMT_Z' : 'Pelvic_Anterior_Tilt',
+    'FP2_KNEE_MMT_X' : 'Knee_Extensor_Moment',
+    'FP2_KNEE_MMT_Y' : 'Knee_Valgus_Moment',
+    'FP2_KNEE_MMT_Z' : 'Knee_Rotaion_Moment',
     
-    'FP2_ANKLE_MMT_X' : 'Ankle_Medial_mmt',
-    #'FP2_ANKLE_MMT_Y' : 'Pelvic_Anterior_Tilt',
-    #'FP2_ANKLE_MMT_Z' : 'Pelvic_Anterior_Tilt',
+    'FP2_ANKLE_MMT_X' : 'Ankle_Plantarflexor_Moment',
+    'FP2_ANKLE_MMT_Y' : 'Ankle_Eversion_Moment',
+    'FP2_ANKLE_MMT_Z' : 'Ankle_Rotaion_Moment',
     }
 
 def one_angle_plotly(data, cols, time, k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2):
@@ -151,7 +149,8 @@ def one_angle_plotly(data, cols, time, k_Heel_contact_1, k_Toe_off_1, k_Heel_con
             y_label = 'Angle [deg]'
         
         # Create the trace for the main data line
-        trace = go.Scatter(x=time, y=df, mode='lines', name=cols[col], line=dict(color='orange'))
+        time_sequence = list(range(len(df)))
+        trace = go.Scatter(x=time_sequence, y=df, mode='lines', name=cols[col], line=dict(color='orange'))
         traces = [trace]
         
         ang['k_Heel_contact_1'][col] = round(df[k_Heel_contact_1])
@@ -167,20 +166,18 @@ def one_angle_plotly(data, cols, time, k_Heel_contact_1, k_Toe_off_1, k_Heel_con
         reference_lines =[]
         annotations = []
         
-        for key_time, description in zip([k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2],
-                                     ['HC1', 'TO1', 'HC2', 'TO2']):
-            
-            # 참조선
-            reference_lines.append(
-            go.Scatter(x=[time[key_time], time[key_time]], y=[df.min(), df.max()],
-                       mode='lines', line=dict(color='black', width=2, dash='dash'),
+        # 최대값 위치에 수직선 추가
+        max_frame_index = ang['max_frame'][col]
+        reference_lines.append(
+            go.Scatter(x=[time_sequence[max_frame_index], time_sequence[max_frame_index]], y=[df.min(), df.max()],
+                       mode='lines', line=dict(color='red', width=2, dash='dash'),
                        showlegend=False)
         )
-            # 주석
-            annotations.append(
-            dict(x=time[key_time], y=0.95, xref='x', yref='paper', showarrow=False,
-                 text=description,textangle=-90, bgcolor='rgba(0,0,0,0)', bordercolor='rgba(0,0,0,0)', borderwidth=0,
-                 )
+
+        # 주석 추가
+        annotations.append(
+            dict(x=time_sequence[max_frame_index], y=0.95, xref='x', yref='paper', showarrow=False,
+                 text='Max', textangle=-90, bgcolor='rgba(0,0,0,0)', bordercolor='rgba(0,0,0,0)', borderwidth=0)
         )
         
         # Define the layout
@@ -229,7 +226,8 @@ def grf_plotly(data, cols, time, k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2
     traces = []
     for col, info in cols.items():
         df = data[col]
-        trace = go.Scatter(x=time, y=df, mode='lines', name=info[0], line=dict(color=info[-1]))
+        time_sequence = list(range(len(df)))
+        trace = go.Scatter(x=time_sequence, y=df, mode='lines', name=info[0], line=dict(color=info[-1]))
         traces.append(trace)
         
         # Perform and store the calculations for max, min and specific times
@@ -247,18 +245,18 @@ def grf_plotly(data, cols, time, k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2
     reference_lines = []
     annotations = []
 
-    # Add vertical lines and annotations for key events
-    for key_time, description in zip([k_Heel_contact_1, k_Toe_off_1, k_Heel_contact_2, k_Toe_off_2],
-                                    ['HC1', 'TO1', 'HC2', 'TO2']):
-        reference_lines.append(
-        go.Scatter(x=[time[key_time], time[key_time]], y=[df.min(), df.max()],
-                    mode='lines', line=dict(color='black', width=2, dash='dash'),
+    # 최대값 위치에 수직선 추가
+    max_frame_index = y_values['max_frame'][col]
+    reference_lines.append(
+        go.Scatter(x=[time_sequence[max_frame_index], time_sequence[max_frame_index]], y=[df.min(), df.max()],
+                    mode='lines', line=dict(color='red', width=2, dash='dash'),
                     showlegend=False)
     )
-        annotations.append(
-        dict(x=time[key_time], y=0.95, xref='x', yref='paper', showarrow=False,
-                text=description,textangle=-90, bgcolor='rgba(0,0,0,0)', bordercolor='rgba(0,0,0,0)', borderwidth=0,
-                )
+
+    # 주석 추가
+    annotations.append(
+        dict(x=time_sequence[max_frame_index], y=0.95, xref='x', yref='paper', showarrow=False,
+                text='Max', textangle=-90, bgcolor='rgba(0,0,0,0)', bordercolor='rgba(0,0,0,0)', borderwidth=0)
     )
 
     # Update the layout with additional elements
@@ -364,57 +362,98 @@ st.title('KUM GAIT REPORT')
 st.header('분석 구간')
 st.image('image/analysis.png', use_column_width=True)
 
-stride_length = round(fp1_filtered['stride_length'][0],2)
+st.subheader('General Parameters')
+
+step_length = round(fp1_filtered['stride_length'][0],2)
 step_width = round(fp1_filtered['step_width'][0],2)
 
 col1, col2 = st.columns(2)
-col1.metric("Stride Length", f"{stride_length} cm", "height")
+col1.metric("step Length", f"{step_length} cm", "height")
 col2.metric("Step Width", f"{step_width} cm", "height")
 
-
-
-
+# ANGLE
+joint_angle_groups = {
+    'Pelvic': {
+        'FP1': ['PELVIS_ANGLE_X', 'PELVIS_ANGLE_Y', 'PELVIS_ANGLE_Z'],
+        'FP2': ['PELVIS_ANGLE_X', 'PELVIS_ANGLE_Y', 'PELVIS_ANGLE_Z']
+    },
+    'Hip': {
+        'FP1': ['FP1_HIP_ANGLE_X', 'FP1_HIP_ANGLE_Y', 'FP1_HIP_ANGLE_Z'],
+        'FP2': ['FP2_HIP_ANGLE_X', 'FP2_HIP_ANGLE_Y', 'FP2_HIP_ANGLE_Z']
+    },
+    'Knee': {
+        'FP1': ['FP1_KNEE_ANGLE_X'],
+        'FP2': ['FP2_KNEE_ANGLE_X']
+    },
+    'Ankle': {
+        'FP1': ['FP1_ANKLE_ANGLE_X', 'FP1_ANKLE_ANGLE_Y', 'FP1_ANKLE_ANGLE_Z'],
+        'FP2': ['FP2_ANKLE_ANGLE_X', 'FP2_ANKLE_ANGLE_Y', 'FP2_ANKLE_ANGLE_Z']
+    }
+}
 
 st.subheader('KINEMATICS PARAMETERS')
 
-tabs = st.tabs(FP1_ang_cols.values())
+joint_tabs = st.tabs(list(joint_angle_groups.keys()))
 
-for tab, col_1, col_2 in zip(tabs, FP1_ang_cols, FP2_ang_cols):
-    with tab:
-        col1, col2 = st.columns([1, 1])
+for joint_tab, (joint, angles) in zip(joint_tabs, joint_angle_groups.items()):
+    with joint_tab:
+        col1, col2 = st.columns(2)
         with col1:
-            st.plotly_chart(FP1_fig[col_1], use_container_width=True)
+            st.header(f"Right")
+            for angle in angles['FP1']:
+                st.plotly_chart(FP1_fig[angle], use_container_width=True)
         with col2:
-            st.plotly_chart(FP2_fig[col_2], use_container_width=True)
-        
-# force
+            st.header(f"Left")
+            for angle in angles['FP2']:
+                st.plotly_chart(FP2_fig[angle], use_container_width=True)
+
+# FORCE
 st.subheader('KINETICS PARAMETERS')
 
-# 탭 생성
 tab1, tab2 = st.tabs(["GRF AP axis", "GRF Verticla"])
 
 with tab1:
-    col1, col2 = st.columns([1, 1])  # 첫 번째 쌍의 차트를 위한 열 정의
+    col1, col2 = st.columns([1, 1])
     with col1:
+        st.header(f"Right")
         st.plotly_chart(force1_ap_fig, use_container_width=True)
     with col2:
+        st.header(f"Left")
         st.plotly_chart(force2_ap_fig, use_container_width=True)
 
 with tab2:
-    col1, col2 = st.columns([1, 1])  # 두 번째 쌍의 차트를 위한 열 정의
+    col1, col2 = st.columns([1, 1]) 
     with col1:
+        st.header(f"Right")
         st.plotly_chart(force1_vt_fig, use_container_width=True)
     with col2:
+        st.header(f"Left")
         st.plotly_chart(force2_vt_fig, use_container_width=True)
         
-# MMT
-st.subheader('MOMENTS')
-tabs = st.tabs(FP1_mmt_cols.values())
+# MOMENTS
+moment_groups = {
+    'Knee': {
+        'FP1': ['FP1_KNEE_MMT_X', 'FP1_KNEE_MMT_Y', 'FP1_KNEE_MMT_Z'],
+        'FP2': ['FP2_KNEE_MMT_X', 'FP2_KNEE_MMT_Y', 'FP2_KNEE_MMT_Z']
+    },
+    'Ankle': {
+        'FP1': ['FP1_ANKLE_MMT_X', 'FP1_ANKLE_MMT_Y', 'FP1_ANKLE_MMT_Z'],
+        'FP2': ['FP2_ANKLE_MMT_X', 'FP2_ANKLE_MMT_Y', 'FP2_ANKLE_MMT_Z']
+    }
+}
 
-for tab, col_1, col_2 in zip(tabs, FP1_mmt_cols, FP2_mmt_cols):
-    with tab:
-        col1, col2 = st.columns([1, 1])
+st.subheader('MOMENTS')
+
+moment_tabs = st.tabs(list(moment_groups.keys()))
+
+for moment_tab, (joint, sides) in zip(moment_tabs, moment_groups.items()):
+    with moment_tab:
+        col1, col2 = st.columns(2)
         with col1:
-            st.plotly_chart(mmt1_fig[col_1], use_container_width=True)
+            st.header(f"Right")
+            for mmt_key in sides['FP1']:
+                st.plotly_chart(mmt1_fig[mmt_key], use_container_width=True)
         with col2:
-            st.plotly_chart(mmt2_fig[col_2], use_container_width=True)
+            st.header(f"Left")
+            for mmt_key in sides['FP2']:
+                st.plotly_chart(mmt2_fig[mmt_key], use_container_width=True)
